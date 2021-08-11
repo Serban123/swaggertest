@@ -1,0 +1,328 @@
+openapi: 3.0.1
+info:
+  title: eFactura
+  description: Serviciu de upload al facturii
+  license:
+    name: Apache 2.0-daca este cazul
+    url: http://link.licenta.mfp.ro
+  version: "1.0"
+externalDocs:
+  description: Wiki - putem publica un link cu documentatie
+  url: http://link.wiki.mfp.ro
+servers:
+- url: http://localhost:9001/FCTEL/rest
+  description: Generated server url
+tags:
+- name: eFacturaUpload
+  description: Upload factura API
+paths:
+  /upload:
+    put:
+      tags:
+      - eFacturaUpload
+      operationId: handleRequestPut
+      parameters:
+      - name: standard
+        in: query
+        description: Specifica standardul facturii. Valorile acceptate sunt UBL si
+          CII
+        required: true
+        schema:
+          type: string
+        example: UBL
+      requestBody:
+        description: Trebuie transmis un fisier de tip xml
+        content:
+          '*/*':
+            schema:
+              type: string
+            examples:
+              structura xml pentru UBL:
+                summary: UBL
+                description: structura xml pentru UBL
+                value: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<declaratieUnica\
+                  \  luna_r=\"05\" an_r=\"2021\" d_rec=\"0\" nume_declar=\"FILIP\"\
+                  \ prenume_declar=\"COSMIN ADRIAN\" functie_declar=\"ADMINISTRATOR\"\
+                  \ xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"\
+                  mfp:anaf:dgti:declaratie_unica:declaratie:v6 DecUnica.xsd\" xmlns=\"\
+                  mfp:anaf:dgti:declaratie_unica:declaratie:v6\">\r\n<angajator cif=\"\
+                  841020\" rgCom=\"J37/292/1991\" caen=\"2512\" den=\"SC BICOMPLEX\
+                  \ SRL\" adrSoc=\"LOC.HUSI,JUDET VASLUI,STR.STEFAN CEL MARE,NR.97\"\
+                  \ telSoc=\"0720597831\" mailSoc=\"sc_bicomplex_srl@yahoo.com\" adrFisc=\"\
+                  LOC.HUSI,JUDET VASLUI,STR.STEFAN CEL MARE,NR.97\" telFisc=\"0720597831\"\
+                  \ mailFisc=\"Ssc_bicomplex_srl@yahoo.com\" casaAng=\"VS\" datCAM=\"\
+                  1\" cifAf1=\"0\" cifAf2=\"0\" cifAf1_a=\"0\" cifAf2_a=\"0\" bifa_CAM=\"\
+                  0\" totalPlata_A=\"0\">\r\n\t<angajatorA A_codOblig=\"602\" A_codBugetar=\"\
+                  5503XXXXXX\" A_datorat=\"0\" A_deductibil=\"0\" A_scutit=\"0\" A_plata=\"\
+                  0\" />\t\r\n</angajator>\r\n</declaratieUnica>"
+              structura xml pentru CII:
+                summary: CII
+                description: structura xml pentru CII
+                value: "<msj xmlns=\"mfp:anaf:dgti:a4203:declaratie:v1\" xmlns:xsi=\"\
+                  http://www.w3.org/2001/XMLSchema-instance\" idM=\"1000346770202106220002021509\"\
+                  >\r\n\t<bon idB=\"10003467702021062100555515090001\" totB=\"156.76\"\
+                  \ totTva=\"25.03\">\r\n\t\t<cote cota=\"19\" tva=\"25.03\"></cote>\r\
+                  \n\t</bon>\t\r\n\t<rB idR=\"1000346770202106220001481509\" monRef=\"\
+                  RON\" nrA=\"0\" nrAv=\"0\" nrB=\"268\" nrBC=\"15\" nrM=\"0\" nrR=\"\
+                  3\" sume_serv_in=\"0.00\" sume_serv_out=\"0.00\" totA=\"0.00\" totB=\"\
+                  28574.89\" totBC=\"2138.27\" totM=\"0.00\" totNet=\"400.00\" totR=\"\
+                  35.00\" totTaxe=\"0.00\" totTva=\"4462.19\" totTvaC=\"341.40\">\r\
+                  \n\t\t<pl monPl=\"RON\" tipP=\"1\" valPl=\"9228.59\"></pl>\r\n\t\
+                  \t<pl monPl=\"RON\" tipP=\"3\" valPl=\"9889.36\"></pl>\r\n\t\t<pl\
+                  \ monPl=\"RON\" tipP=\"7\" valPl=\"7474.94\"></pl>\r\n\t\t<pl monPl=\"\
+                  RON\" tipP=\"9\" valPl=\"1982.00\"></pl>\r\n\t\t<coteZ cota=\"19\"\
+                  \ tva=\"4423.28\" valOp=\"27703.69\"></coteZ>\r\n\t\t<coteZ cota=\"\
+                  9\" tva=\"38.91\" valOp=\"471.20\"></coteZ>\r\n\t\t\t<coteZ cota=\"\
+                  5\" tva=\"0.00\" valOp=\"0.00\"></coteZ>\r\n\t\t<coteZ cota=\"0\"\
+                  \ tva=\"0.00\" valOp=\"0.00\"></coteZ>\r\n\t\t<coteZ cota=\"0\"\
+                  \ tva=\"0.00\" valOp=\"0.00\"></coteZ>\r\n\t\t<coteZ cota=\"0\"\
+                  \ tva=\"0.00\" valOp=\"0.00\"></coteZ>\r\n\t</rB>\r\n</msj>"
+        required: true
+      responses:
+        "400":
+          description: Solicitare incorecta
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CustomErrorMessage'
+              examples:
+                nu ati atasat nimic in request body:
+                  summary: lipsa request body
+                  description: nu ati atasat nimic in request body
+                  value:
+                    timestamp: 05-08-2021 12:04:01
+                    status: 400
+                    error: Bad Request
+                    message: Trebuie sa aveti atasat in request un fisier de tip xml
+                nu ati completat parametrul standard:
+                  summary: lipsa parametru standard
+                  description: nu ati completat parametrul standard
+                  value:
+                    timestamp: 05-08-2021 12:04:01
+                    status: 400
+                    error: Bad Request
+                    message: Parametrul standard este obligatoriu
+        "200":
+          description: Operatie realizata cu succes
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Header'
+              examples:
+                factura a fost incarcata cu succes:
+                  summary: depunere cu succes
+                  description: factura a fost incarcata cu succes
+                  value: "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"\
+                    ?>\r\n<header xmlns=\"mfp:anaf:dgti:spv:respUploadFisier:v1\"\
+                    \ dateResponse=\"202108051140\" ExecutionStatus=\"0\" index_incarcare=\"\
+                    3828\"/>"
+                nu a fost specificat un standard bun:
+                  summary: standard invalid
+                  description: nu a fost specificat un standard bun
+                  value: "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"\
+                    ?>\r\n<header xmlns=\"mfp:anaf:dgti:spv:respUploadFisier:v1\"\
+                    \ dateResponse=\"202108051144\" ExecutionStatus=\"1\">\r\n   \
+                    \ <Errors errorMessage=\"Valorile acceptate pentru parametrul\
+                    \ standard sunt UBL sau CII\"/>\r\n</header>"
+                marimea fisierului estre prea mare:
+                  summary: dimensiune fisier prea mare
+                  description: marimea fisierului estre prea mare
+                  value: "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"\
+                    ?>\r\n<header xmlns=\"mfp:anaf:dgti:spv:respUploadFisier:v1\"\
+                    \ dateResponse=\"202108051144\" ExecutionStatus=\"1\">\r\n   \
+                    \ <Errors errorMessage=\"Marime fisier transmis mai mare de 5\
+                    \ MB.\"/>\r\n</header>"
+                fisierul transmis nu respecta structura UBL sau CII:
+                  summary: fisier transmis invalid
+                  description: fisierul transmis nu respecta structura UBL sau CII
+                  value: "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"\
+                    ?>\r\n<header xmlns=\"mfp:anaf:dgti:spv:respUploadFisier:v1\"\
+                    \ dateResponse=\"202108051144\" ExecutionStatus=\"1\">\r\n   \
+                    \ <Errors errorMessage=\"Fisierul transmis nu este valid. \"/>\r\
+                    \n</header>"
+                a aparut o eroare tehnica:
+                  summary: eroare tehnica
+                  description: a aparut o eroare tehnica
+                  value: "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"\
+                    ?>\r\n<header xmlns=\"mfp:anaf:dgti:spv:respUploadFisier:v1\"\
+                    \ dateResponse=\"202108051144\" ExecutionStatus=\"1\">\r\n   \
+                    \ <Errors errorMessage=\"A aparut o eroare tehnica.\"/>\r\n</header>"
+    post:
+      tags:
+      - eFacturaUpload
+      operationId: handleRequest
+      parameters:
+      - name: standard
+        in: query
+        description: Specifica standardul facturii. Valorile acceptate sunt UBL si
+          CII
+        required: true
+        schema:
+          type: string
+        example: UBL
+      requestBody:
+        description: Trebuie transmis un fisier de tip xml
+        content:
+          '*/*':
+            schema:
+              type: string
+            examples:
+              structura xml pentru UBL:
+                summary: UBL
+                description: structura xml pentru UBL
+                value: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<declaratieUnica\
+                  \  luna_r=\"05\" an_r=\"2021\" d_rec=\"0\" nume_declar=\"FILIP\"\
+                  \ prenume_declar=\"COSMIN ADRIAN\" functie_declar=\"ADMINISTRATOR\"\
+                  \ xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"\
+                  mfp:anaf:dgti:declaratie_unica:declaratie:v6 DecUnica.xsd\" xmlns=\"\
+                  mfp:anaf:dgti:declaratie_unica:declaratie:v6\">\r\n<angajator cif=\"\
+                  841020\" rgCom=\"J37/292/1991\" caen=\"2512\" den=\"SC BICOMPLEX\
+                  \ SRL\" adrSoc=\"LOC.HUSI,JUDET VASLUI,STR.STEFAN CEL MARE,NR.97\"\
+                  \ telSoc=\"0720597831\" mailSoc=\"sc_bicomplex_srl@yahoo.com\" adrFisc=\"\
+                  LOC.HUSI,JUDET VASLUI,STR.STEFAN CEL MARE,NR.97\" telFisc=\"0720597831\"\
+                  \ mailFisc=\"Ssc_bicomplex_srl@yahoo.com\" casaAng=\"VS\" datCAM=\"\
+                  1\" cifAf1=\"0\" cifAf2=\"0\" cifAf1_a=\"0\" cifAf2_a=\"0\" bifa_CAM=\"\
+                  0\" totalPlata_A=\"0\">\r\n\t<angajatorA A_codOblig=\"602\" A_codBugetar=\"\
+                  5503XXXXXX\" A_datorat=\"0\" A_deductibil=\"0\" A_scutit=\"0\" A_plata=\"\
+                  0\" />\t\r\n</angajator>\r\n</declaratieUnica>"
+              structura xml pentru CII:
+                summary: CII
+                description: structura xml pentru CII
+                value: "<msj xmlns=\"mfp:anaf:dgti:a4203:declaratie:v1\" xmlns:xsi=\"\
+                  http://www.w3.org/2001/XMLSchema-instance\" idM=\"1000346770202106220002021509\"\
+                  >\r\n\t<bon idB=\"10003467702021062100555515090001\" totB=\"156.76\"\
+                  \ totTva=\"25.03\">\r\n\t\t<cote cota=\"19\" tva=\"25.03\"></cote>\r\
+                  \n\t</bon>\t\r\n\t<rB idR=\"1000346770202106220001481509\" monRef=\"\
+                  RON\" nrA=\"0\" nrAv=\"0\" nrB=\"268\" nrBC=\"15\" nrM=\"0\" nrR=\"\
+                  3\" sume_serv_in=\"0.00\" sume_serv_out=\"0.00\" totA=\"0.00\" totB=\"\
+                  28574.89\" totBC=\"2138.27\" totM=\"0.00\" totNet=\"400.00\" totR=\"\
+                  35.00\" totTaxe=\"0.00\" totTva=\"4462.19\" totTvaC=\"341.40\">\r\
+                  \n\t\t<pl monPl=\"RON\" tipP=\"1\" valPl=\"9228.59\"></pl>\r\n\t\
+                  \t<pl monPl=\"RON\" tipP=\"3\" valPl=\"9889.36\"></pl>\r\n\t\t<pl\
+                  \ monPl=\"RON\" tipP=\"7\" valPl=\"7474.94\"></pl>\r\n\t\t<pl monPl=\"\
+                  RON\" tipP=\"9\" valPl=\"1982.00\"></pl>\r\n\t\t<coteZ cota=\"19\"\
+                  \ tva=\"4423.28\" valOp=\"27703.69\"></coteZ>\r\n\t\t<coteZ cota=\"\
+                  9\" tva=\"38.91\" valOp=\"471.20\"></coteZ>\r\n\t\t\t<coteZ cota=\"\
+                  5\" tva=\"0.00\" valOp=\"0.00\"></coteZ>\r\n\t\t<coteZ cota=\"0\"\
+                  \ tva=\"0.00\" valOp=\"0.00\"></coteZ>\r\n\t\t<coteZ cota=\"0\"\
+                  \ tva=\"0.00\" valOp=\"0.00\"></coteZ>\r\n\t\t<coteZ cota=\"0\"\
+                  \ tva=\"0.00\" valOp=\"0.00\"></coteZ>\r\n\t</rB>\r\n</msj>"
+        required: true
+      responses:
+        "400":
+          description: Solicitare incorecta
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CustomErrorMessage'
+              examples:
+                nu ati atasat nimic in request body:
+                  summary: lipsa request body
+                  description: nu ati atasat nimic in request body
+                  value:
+                    timestamp: 05-08-2021 12:04:01
+                    status: 400
+                    error: Bad Request
+                    message: Trebuie sa aveti atasat in request un fisier de tip xml
+                nu ati completat parametrul standard:
+                  summary: lipsa parametru standard
+                  description: nu ati completat parametrul standard
+                  value:
+                    timestamp: 05-08-2021 12:04:01
+                    status: 400
+                    error: Bad Request
+                    message: Parametrul standard este obligatoriu
+        "200":
+          description: Operatie realizata cu succes
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Header'
+              examples:
+                factura a fost incarcata cu succes:
+                  summary: depunere cu succes
+                  description: factura a fost incarcata cu succes
+                  value: "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"\
+                    ?>\r\n<header xmlns=\"mfp:anaf:dgti:spv:respUploadFisier:v1\"\
+                    \ dateResponse=\"202108051140\" ExecutionStatus=\"0\" index_incarcare=\"\
+                    3828\"/>"
+                nu a fost specificat un standard bun:
+                  summary: standard invalid
+                  description: nu a fost specificat un standard bun
+                  value: "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"\
+                    ?>\r\n<header xmlns=\"mfp:anaf:dgti:spv:respUploadFisier:v1\"\
+                    \ dateResponse=\"202108051144\" ExecutionStatus=\"1\">\r\n   \
+                    \ <Errors errorMessage=\"Valorile acceptate pentru parametrul\
+                    \ standard sunt UBL sau CII\"/>\r\n</header>"
+                marimea fisierului estre prea mare:
+                  summary: dimensiune fisier prea mare
+                  description: marimea fisierului estre prea mare
+                  value: "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"\
+                    ?>\r\n<header xmlns=\"mfp:anaf:dgti:spv:respUploadFisier:v1\"\
+                    \ dateResponse=\"202108051144\" ExecutionStatus=\"1\">\r\n   \
+                    \ <Errors errorMessage=\"Marime fisier transmis mai mare de 5\
+                    \ MB.\"/>\r\n</header>"
+                fisierul transmis nu respecta structura UBL sau CII:
+                  summary: fisier transmis invalid
+                  description: fisierul transmis nu respecta structura UBL sau CII
+                  value: "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"\
+                    ?>\r\n<header xmlns=\"mfp:anaf:dgti:spv:respUploadFisier:v1\"\
+                    \ dateResponse=\"202108051144\" ExecutionStatus=\"1\">\r\n   \
+                    \ <Errors errorMessage=\"Fisierul transmis nu este valid. \"/>\r\
+                    \n</header>"
+                a aparut o eroare tehnica:
+                  summary: eroare tehnica
+                  description: a aparut o eroare tehnica
+                  value: "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"\
+                    ?>\r\n<header xmlns=\"mfp:anaf:dgti:spv:respUploadFisier:v1\"\
+                    \ dateResponse=\"202108051144\" ExecutionStatus=\"1\">\r\n   \
+                    \ <Errors errorMessage=\"A aparut o eroare tehnica.\"/>\r\n</header>"
+components:
+  schemas:
+    CustomErrorMessage:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          format: int32
+        error:
+          type: string
+        message:
+          type: string
+    ErrorsType:
+      type: object
+      properties:
+        errorMessage:
+          type: string
+          xml:
+            attribute: true
+    Header:
+      type: object
+      properties:
+        errors:
+          type: array
+          xml:
+            name: Errors
+          items:
+            $ref: '#/components/schemas/ErrorsType'
+        dateResponse:
+          type: string
+          xml:
+            attribute: true
+        executionStatus:
+          type: integer
+          format: int32
+          xml:
+            name: ExecutionStatus
+            attribute: true
+        indexIncarcare:
+          type: integer
+          format: int64
+          xml:
+            name: index_incarcare
+            attribute: true
+      xml:
+        name: header
